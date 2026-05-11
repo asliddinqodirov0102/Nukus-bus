@@ -57,8 +57,15 @@ def health_check():
     """Render.com health check endpoint"""
     return JSONResponse(content={"status": "ok", "service": "nukus-bus-api"})
 
-# Mount Frontend Static Files (lokal ishlatish uchun)
-frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../frontend"))
+# Mount Frontend Static Files
+# Docker da: /app/app/main.py -> ../frontend = /app/frontend ✅
+# Lokal da:  backend/app/main.py -> ../../frontend = nukus-bus/frontend ✅
+_base = os.path.dirname(__file__)
+frontend_path = os.path.abspath(os.path.join(_base, "../frontend"))
+if not os.path.exists(frontend_path):
+    frontend_path = os.path.abspath(os.path.join(_base, "../../frontend"))
+
 if os.path.exists(frontend_path):
     app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
+
 
