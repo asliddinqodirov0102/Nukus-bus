@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="admin_panel">Nukus Bus - Admin Panel</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e3a8a',
+                        surface: 'rgba(255, 255, 255, 0.1)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gray-900 text-white font-inter h-screen flex flex-col overflow-x-hidden">
+
+    <!-- Login Overlay -->
+    <div id="loginOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/95 backdrop-blur-sm">
+        <div class="glass glass-card p-8 rounded-2xl w-full max-w-md shadow-2xl">
+            <div class="text-center mb-8">
+                <ion-icon name="bus-outline" class="text-5xl text-blue-500 mb-2"></ion-icon>
+                <h2 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">Nukus Admin</h2>
+                <p class="text-gray-400 text-sm mt-1" data-i18n="login">Tizimga kirish</p>
+            </div>
+            
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1" data-i18n="username">Foydalanuvchi nomi</label>
+                    <input type="text" id="username" class="w-full bg-gray-800/80 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1" data-i18n="password">Parol</label>
+                    <input type="password" id="password" class="w-full bg-gray-800/80 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" required>
+                </div>
+                <div id="loginError" class="text-red-400 text-sm hidden">Noto'g'ri log yoki parol</div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors mt-4 shadow-lg shadow-blue-500/30" data-i18n="login">
+                    Kirish
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Dashboard Layout (Hidden by default until logged in) -->
+    <div id="dashboardContainer" class="hidden flex-grow flex flex-col h-full">
+        
+        <!-- Header -->
+        <header class="glass sticky top-0 z-40 flex justify-between items-center px-6 py-4">
+            <div class="flex items-center space-x-3">
+                <a href="index.html" class="p-2 hover:bg-gray-800 rounded-lg transition-colors">
+                    <ion-icon name="arrow-back-outline" class="text-xl"></ion-icon>
+                </a>
+                <h1 class="text-xl font-bold" data-i18n="dashboard">Boshqaruv Paneli</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <select id="langSelect" class="appearance-none bg-gray-800/80 border border-gray-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-pointer">
+                        <option value="kaa">Qaraqalpaq</option>
+                        <option value="uz">O'zbek</option>
+                        <option value="ru">Русский</option>
+                    </select>
+                </div>
+                <button id="logoutBtn" class="text-red-400 hover:text-red-300 hover:bg-red-400/10 px-3 py-1.5 rounded-lg transition-colors flex items-center space-x-2 text-sm font-medium">
+                    <ion-icon name="log-out-outline"></ion-icon>
+                    <span data-i18n="logout">Chiqish</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow p-6 overflow-y-auto custom-scrollbar">
+            
+            <!-- Stats Row -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="glass glass-card p-5 rounded-2xl flex items-center space-x-4">
+                    <div class="p-3 bg-blue-500/20 text-blue-400 rounded-xl">
+                        <ion-icon name="bus" class="text-2xl"></ion-icon>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium" data-i18n="total_buses">Jami avtobuslar</p>
+                        <h3 class="text-2xl font-bold">145</h3>
+                    </div>
+                </div>
+
+                <div class="glass glass-card p-5 rounded-2xl flex items-center space-x-4 border-l-4 border-green-500">
+                    <div class="p-3 bg-green-500/20 text-green-400 rounded-xl">
+                        <ion-icon name="cellular" class="text-2xl"></ion-icon>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium" data-i18n="active_now">Tarmoqda</p>
+                        <h3 class="text-2xl font-bold" id="activeBusCount">42</h3>
+                    </div>
+                </div>
+
+                <div class="glass glass-card p-5 rounded-2xl flex items-center space-x-4">
+                    <div class="p-3 bg-purple-500/20 text-purple-400 rounded-xl">
+                        <ion-icon name="analytics" class="text-2xl"></ion-icon>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium" data-i18n="daily_dist">Kunlik masofa</p>
+                        <h3 class="text-2xl font-bold">4,203 <span class="text-sm font-normal text-gray-400">km</span></h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Data Table: Buses -->
+                <div class="lg:col-span-2 glass glass-card rounded-2xl p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-lg font-bold" data-i18n="total_buses">Avtobuslar ro'yxati</h2>
+                        <button id="openAddBusModal" class="bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer" data-i18n="add_bus">
+                            + Qo'shish
+                        </button>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-gray-400">
+                            <thead class="text-xs text-gray-300 uppercase bg-gray-800/50">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3" data-i18n="bus_number">№</th>
+                                    <th scope="col" class="px-4 py-3" data-i18n="route_name">Yo'nalish</th>
+                                    <th scope="col" class="px-4 py-3" data-i18n="driver_phone">Tel</th>
+                                    <th scope="col" class="px-4 py-3">Status</th>
+                                    <th scope="col" class="px-4 py-3">Harakat</th>
+                                </tr>
+                            </thead>
+                            <tbody id="busTableBody">
+                                <!-- JS injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Chart -->
+                <div class="glass glass-card rounded-2xl p-6">
+                    <h2 class="text-lg font-bold mb-4">Statistika</h2>
+                    <div class="relative h-64 w-full">
+                        <canvas id="distanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Add Bus Modal -->
+    <div id="addBusModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-900/80 backdrop-blur-sm">
+        <div class="glass glass-card p-6 rounded-2xl w-full max-w-md shadow-2xl">
+            <div class="flex justify-between items-center mb-4 border-b border-gray-700/50 pb-3">
+                <h3 class="text-xl font-bold" data-i18n="add_bus">Yangi Avtobus</h3>
+                <button id="closeAddBusModal" class="text-gray-400 hover:text-white transition-colors">
+                    <ion-icon name="close" class="text-2xl"></ion-icon>
+                </button>
+            </div>
+            <form id="addBusForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm text-gray-300 mb-1" data-i18n="bus_number">Raqami (№)</label>
+                    <input type="text" id="newRouteNum" class="w-full bg-gray-800/80 border border-gray-700 rounded-lg px-4 py-2 text-white focus:ring-blue-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-300 mb-1" data-i18n="route_name">Yo'nalish Nomi</label>
+                    <input type="text" id="newRouteName" class="w-full bg-gray-800/80 border border-gray-700 rounded-lg px-4 py-2 text-white focus:ring-blue-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-300 mb-1" data-i18n="driver_phone">Haydovchi tel</label>
+                    <input type="text" id="newDriverPhone" class="w-full bg-gray-800/80 border border-gray-700 rounded-lg px-4 py-2 text-white focus:ring-blue-500">
+                </div>
+                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 rounded-lg transition-colors mt-2">
+                    Saqlash
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/i18n.js?v=2"></script>
+    <script src="js/admin.js?v=2"></script>
+</body>
+</html>
