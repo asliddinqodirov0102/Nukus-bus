@@ -1,9 +1,10 @@
 let ws;
-// Lokal da localhost, production da Render backend URL
+// WebSocket URL: Lokal da ws://localhost, production da wss://nukus-bus.onrender.com
 const WS_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'ws://localhost:8000'
-    : 'wss://nukus-bus-api.onrender.com';
+    : `wss://${window.location.hostname}`;  // production: xuddi shu domen
 const WS_URL = `${WS_BASE}/ws/live`;
+
 
 
 // Simulated active buses for testing if WebSocket fails

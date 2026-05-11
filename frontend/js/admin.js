@@ -1,7 +1,6 @@
-// ── API URL: Lokal da relative, Production da absolute ──────────────────────
-const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? ''  // lokal: relative URL, backend va frontend bir xil portda
-    : 'https://nukus-bus-api.onrender.com';  // production
+// ── API URL: Lokal da va production da relative URL ────────────────────────
+// Frontend va backend bitta Render servisida (https://nukus-bus.onrender.com)
+const API_BASE = '';
 
 
     
