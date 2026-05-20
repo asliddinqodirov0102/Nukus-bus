@@ -2,7 +2,7 @@
 // Frontend va backend bitta Render servisida (https://nukus-bus.onrender.com)
 const API_BASE = '';
 
-
+document.addEventListener('DOMContentLoaded', () => {
     
     // Auth Check
     const token = localStorage.getItem('adminToken');
